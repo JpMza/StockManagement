@@ -1,20 +1,10 @@
 import * as React from 'react';
-import { CLIENT_RENEG_LIMIT } from 'tls';
+import { Row } from 'reactstrap';
 
 interface IFormProps {
   /* The http path that the form will be posted to */
   action: string;
   render: () => React.ReactNode;
-}
-
-export interface IValues {
-  /* Key value pairs for all the field values with key being the field name */
-  [key: string]: any;
-}
-
-export interface IErrors {
-  /* The validation error messages for each field (key is the field name */
-  [key: string]: string;
 }
 
 export interface IFormState {
@@ -27,6 +17,28 @@ export interface IFormState {
   /* Whether the form has been successfully submitted */
   submitSuccess?: boolean;
 }
+
+export interface IFormContext extends IFormState {
+  /* Function that allows values in the values state to be set */
+  setValues: (values: IValues) => void;
+}
+/*
+ * The context which allows state and functions to be shared with Field.
+ * Note that we need to pass createContext a default value which is why undefined is unioned in the type
+ */
+export const FormContext = React.createContext<IFormContext | undefined>(undefined);
+
+export interface IValues {
+  /* Key value pairs for all the field values with key being the field name */
+  [key: string]: any;
+}
+
+export interface IErrors {
+  /* The validation error messages for each field (key is the field name */
+  [key: string]: string;
+}
+
+
 
 
 export class Form extends React.Component<IFormProps, IFormState>{
@@ -58,8 +70,13 @@ export class Form extends React.Component<IFormProps, IFormState>{
   }
 
 
+  private setValues = (values: IValues) => {
+    this.setState({ values: { ...this.state.values, ...values } });
+  };
+
   private handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
 
     if (this.validateForm()) {
       const submitSuccess: boolean = await this.submitForm();
@@ -85,7 +102,7 @@ export class Form extends React.Component<IFormProps, IFormState>{
     //console.log(inputData);
     let categoryData: any = document.querySelector('#category');
     //console.log(categoryData);
-    let formData : any = {
+    let formData: any = {
       price: Number(85.22), [categoryData.id]: Number(categoryData.value)
     }
     console.log(formData)
@@ -101,24 +118,33 @@ export class Form extends React.Component<IFormProps, IFormState>{
 
   public render() {
     const { submitSuccess, errors } = this.state;
+    const context: IFormContext = { ...this.state, setValues: this.setValues };
     return (
-      <form onSubmit={this.handleSubmit} noValidate={true} id="productForm">
-        <div className="container">
+      <div>
+        <FormContext.Provider value={context}>
+          <form onSubmit={this.handleSubmit} noValidate={true} id="productForm">
+            <div className="container">
 
-          {this.props.render()}
+              {this.props.render()}
 
-          <div className="form-group">
-            <button
-              onClick={() => this.handleSubmit}
-              type="submit"
-              className="btn btn-primary"
-              disabled={this.haveErrors(errors)}
-            >
-              Confirmar
-          </button>
-          </div>
-        </div>
-      </form>
+              <div className="form-group">
+                <button
+                  onClick={() => this.handleSubmit}
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={this.haveErrors(errors)}
+                >
+                  Confirmar
+              </button>
+
+                <button onClick={() => console.log(this.state.values)}>
+                  Estado
+              </button>
+              </div>
+            </div>
+          </form>
+        </FormContext.Provider>
+      </div>
     );
   }
 }
