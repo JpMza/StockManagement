@@ -22,7 +22,7 @@ export const ProductsForm: React.FunctionComponent = () => {
                 render={() => (
                     <React.Fragment>
                         <div className="alert alert-info" role="alert">
-                            Ingrese los datos del producto debajo
+                            Ingrese los datos del producto
           </div>
                         <Field id="price" label="Precio" />
                         <Field id="loadDate" label="Fecha de Carga" />

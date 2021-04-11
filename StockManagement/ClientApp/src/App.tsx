@@ -14,7 +14,7 @@ export default () => (
         <Route exact path='/' component={Home} />
         <Route path='/counter' component={Counter} />
         <Route path='/fetch-data/:startDateIndex?' component={FetchData} />
-        <Route path='/products' component={Products} />
-        <Route path='/products/form' component={ProductsForm} />
+        <Route exact path='/products' component={Products} />
+        <Route exact path='/products/form' component={ProductsForm} />
     </Layout>
 );

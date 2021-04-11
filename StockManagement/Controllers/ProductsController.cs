@@ -21,7 +21,7 @@ namespace StockManagement.Controllers
         {
         }
 
-        [HttpGet("{budget}")]
+        [HttpGet("/avaliable/{budget}")]
         [Route("/productos/disponibles/")]
         public async Task<ActionResult<IEnumerable<Product>>> getAvaliableProductsByBudgetAsync(int budget)
         {

@@ -6,6 +6,7 @@ import { Row, Col } from 'reactstrap';
 import { ApplicationState } from '../../store';
 import * as ProductsStore from '../../store/Products';
 import './Product.css';
+import moment from 'moment';
 
 // At runtime, Redux will merge together...
 type ProductsProps =
@@ -43,10 +44,6 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
         );
     }
 
-    private goToProductsForm() {
-        this.props.history.push('/products/form');
-    }
-
     private ensureDataFetched() {
         const startDateIndex = parseInt(this.props.match.params.startDateIndex, 10) || 0;
         this.props.requestProducts(startDateIndex);
@@ -68,7 +65,7 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
                         <tr key={product.id}>
                             <td>{product.id}</td>
                             <td>{product.price}</td>
-                            <td>{product.loadDate}</td>
+                            <td>{moment(product.loadDate).format('DD-mm-YYYY')}</td>
                             <td>{product.category}</td>
                         </tr>
                     )}

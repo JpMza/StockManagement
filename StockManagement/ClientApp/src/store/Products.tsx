@@ -1,5 +1,5 @@
 import { Action, Reducer } from 'redux';
-import { AppThunkAction } from './';
+import { AppThunkAction } from '.';
 
 export interface ProductState {
     isLoading: boolean;
@@ -8,10 +8,10 @@ export interface ProductState {
 }
 
 export interface Product {
-    id: number;
+    id?: number;
     price: number;
     loadDate: Date;
-    category: String;
+    category: number;
 }
 
 interface RequestProductsListAction {
