@@ -1,11 +1,34 @@
 import * as React from 'react';
-import { CLIENT_RENEG_LIMIT } from 'tls';
+import { Row,Button } from 'reactstrap';
+import {Product} from '../../store/Products';
+import { History, LocationState } from "history";
 
-interface IFormProps {
+export interface IFormProps {
   /* The http path that the form will be posted to */
   action: string;
+  history: History<LocationState>;
   render: () => React.ReactNode;
 }
+
+export interface IFormState {
+  values: IValues;
+
+  /* The field validation error messages */
+  errors: IErrors;
+
+  /* Whether the form has been successfully submitted */
+  submitSuccess?: boolean;
+}
+
+export interface IFormContext extends IFormState {
+  /* Function that allows values in the values state to be set */
+  setValues: (values: IValues) => void;
+}
+/*
+ * The context which allows state and functions to be shared with Field.
+ * Note that we need to pass createContext a default value which is why undefined is unioned in the type
+ */
+export const FormContext = React.createContext<IFormContext | undefined>(undefined);
 
 export interface IValues {
   /* Key value pairs for all the field values with key being the field name */
@@ -17,19 +40,9 @@ export interface IErrors {
   [key: string]: string;
 }
 
-export interface IFormState {
-  /* The field values */
-  values: IValues;
-
-  /* The field validation error messages */
-  errors: IErrors;
-
-  /* Whether the form has been successfully submitted */
-  submitSuccess?: boolean;
-}
 
 
-export class Form extends React.Component<IFormProps, IFormState>{
+export class Form extends React.Component<IFormProps, IFormState, {}>{
 
   constructor(props: IFormProps) {
     super(props);
@@ -40,8 +53,6 @@ export class Form extends React.Component<IFormProps, IFormState>{
       values
     };
   }
-
-
 
   /**
    * Returns whether there are any errors in the errors object that is passed in
@@ -58,8 +69,13 @@ export class Form extends React.Component<IFormProps, IFormState>{
   }
 
 
+  private setValues = (values: IValues) => {
+    this.setState({ values: { ...this.state.values, ...values } });
+  };
+
   private handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
 
     if (this.validateForm()) {
       const submitSuccess: boolean = await this.submitForm();
@@ -81,44 +97,52 @@ export class Form extends React.Component<IFormProps, IFormState>{
    * @returns {boolean} - Whether the form submission was successful or not
    */
   private async submitForm(): Promise<boolean> {
-    let inputData: any = Array.from(document.querySelectorAll('#productForm input')).reduce((acc, input) => ({ ...acc, [input.id]: input.value }), {})
-    //console.log(inputData);
-    let categoryData: any = document.querySelector('#category');
-    //console.log(categoryData);
-    let formData : any = {
-      price: Number(85.22), [categoryData.id]: Number(categoryData.value)
+    let productData : Product = {
+      price: Number(this.state.values.price),
+      category: Number(this.state.values.category),
+      loadDate: this.state.values.loadDate
     }
-    console.log(formData)
-    //debugger
     const response = await fetch(this.props.action, {
       method: 'POST',
-      body: JSON.stringify(formData),
+      body: JSON.stringify(productData),
       headers: { 'Content-Type': 'application/json; charset=UTF-8' }
     });
-
+    console.log(response)
+    if(response.ok == true && response.status == 201){
+      this.props.history.push('/products')
+    }
     return true;
   }
 
   public render() {
     const { submitSuccess, errors } = this.state;
+    const context: IFormContext = { ...this.state, setValues: this.setValues };
     return (
-      <form onSubmit={this.handleSubmit} noValidate={true} id="productForm">
-        <div className="container">
+      <div>
+        <FormContext.Provider value={context}>
+          <form onSubmit={this.handleSubmit} noValidate={true} id="productForm">
+            <div className="container">
 
-          {this.props.render()}
+              {this.props.render()}
 
-          <div className="form-group">
-            <button
-              onClick={() => this.handleSubmit}
-              type="submit"
-              className="btn btn-primary"
-              disabled={this.haveErrors(errors)}
-            >
-              Confirmar
-          </button>
-          </div>
-        </div>
-      </form>
+              <div className="form-group">
+                <Button
+                  onClick={() => this.handleSubmit}
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={this.haveErrors(errors)}
+                >
+                  Confirmar
+              </Button>
+
+              <Button color="secondary" onClick={() =>  window.history.back()}>
+                  Volver
+              </Button>
+              </div>
+            </div>
+          </form>
+        </FormContext.Provider>
+      </div>
     );
   }
 }
