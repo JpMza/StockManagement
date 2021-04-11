@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Row,Button } from 'reactstrap';
 import {Product} from '../../store/Products';
-import { RouteComponentProps } from "react-router-dom";
+import { History, LocationState } from "history";
 
-interface IFormProps extends RouteComponentProps {
+export interface IFormProps {
   /* The http path that the form will be posted to */
   action: string;
+  history: History<LocationState>;
   render: () => React.ReactNode;
 }
 
@@ -41,7 +42,7 @@ export interface IErrors {
 
 
 
-export class Form extends React.Component<IFormProps, IFormState>{
+export class Form extends React.Component<IFormProps, IFormState, {}>{
 
   constructor(props: IFormProps) {
     super(props);

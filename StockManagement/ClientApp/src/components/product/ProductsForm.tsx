@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Form } from "./Form";
 import { Field, Option } from "./Field";
-
+import { useHistory } from "react-router";
 
 const options: Array<Option> = [
     {
@@ -15,10 +15,13 @@ const options: Array<Option> = [
 ]
 
 export const ProductsForm: React.FunctionComponent = () => {
+    const history = useHistory();
+
     return (
         <div>
             <Form
                 action="https://localhost:44315/products"
+                history={history}
                 render={() => (
                     <React.Fragment>
                         <div className="alert alert-info" role="alert">
