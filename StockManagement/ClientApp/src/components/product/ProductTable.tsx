@@ -75,14 +75,14 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
     }
 
     private renderPagination() {
-        const prevStartDateIndex = (1 || 0) - 5;
-        const nextStartDateIndex = (1 || 0) + 5;
+        const prevStartDateIndex = 1;
+        const nextStartDateIndex = 1;
 
         return (
             <div className="d-flex justify-content-between">
-                <Link className='btn btn-outline-secondary btn-sm' to={`/fetch-data/${prevStartDateIndex}`}>Previous</Link>
+                <Link className='btn btn-outline-secondary btn-sm' to={`/lista/productos?page=${prevStartDateIndex - 1}&size=${10}`}>Previous</Link>
                 {this.props.isLoading && <span>Loading...</span>}
-                <Link className='btn btn-outline-secondary btn-sm' to={`/fetch-data/${nextStartDateIndex}`}>Next</Link>
+                <Link className='btn btn-outline-secondary btn-sm' to={`/lista/productos?page=${nextStartDateIndex + 1 }&size=${10}`}>Next</Link>
             </div>
         );
     }

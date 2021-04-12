@@ -25,7 +25,7 @@ namespace StockManagement.Controllers
         [Route("/productos/disponibles/")]
         public async Task<ActionResult<IEnumerable<Product>>> getAvaliableProductsByBudgetAsync(int budget)
         {
-            var productsRequest = await Get();
+            var productsRequest = await GetAll();
             IEnumerable<Product> products = productsRequest.Value;
             var filteredProd = products.Where(product => product.Price <= 300);
             if (filteredProd == null)

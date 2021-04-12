@@ -14,6 +14,18 @@ export interface Product {
     category: number;
 }
 
+interface Response {
+    pageNumber: number,
+    pageSize: number,
+    firstPage: any,
+    lastPage: any,
+    totalPages: number,
+    totalRecords: number,
+    nextPage: any,
+    previousPage: any,
+    data : Product[]
+}
+
 interface RequestProductsListAction {
     type: 'REQUEST_PRODUCTS_LIST';
     startDateIndex: number;
@@ -23,7 +35,7 @@ interface RequestProductsListAction {
 interface ReciveProductsListsAction {
     type: 'RECIVE_PRODUCTS';
     startDateIndex: number;
-    products: Product[];
+    data: Response;
 }
 
 
@@ -35,8 +47,8 @@ export const actionCreators = {
         const appState = getState();
         if (appState && appState.products && startDateIndex !== appState.products.startDateIndex) {
             fetch(`/lista/productos`)
-                .then(response => response.json() as Promise<Product[]>)
-                .then(data => dispatch({ type: 'RECIVE_PRODUCTS', startDateIndex: startDateIndex, products: data })
+                .then(response => response.json() as Promise<Response>)
+                .then(result => dispatch({ type: 'RECIVE_PRODUCTS', startDateIndex: startDateIndex, data: result })
                 );
 
             dispatch({ type: 'REQUEST_PRODUCTS_LIST', startDateIndex: startDateIndex });
@@ -66,8 +78,9 @@ export const reducer: Reducer<ProductState> = (state: ProductState | undefined, 
             // Only accept the incoming data if it matches the most recent request. This ensures we correctly
             // handle out-of-order responses.
             if (action.startDateIndex === state.startDateIndex) {
+                debugger
                 return {
-                    products: action.products,
+                    products: action.data.data,
                     isLoading: false
                 };
             }
