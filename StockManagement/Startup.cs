@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using StockManagement.Entity.Repository;
 using Microsoft.EntityFrameworkCore;
 using StockManagement.Data;
+using StockManagement.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace StockManagement
 {
@@ -34,6 +36,15 @@ namespace StockManagement
 
             services.AddDbContext<StockManagementContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("StockManagementContext")));
+
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IUriService>(o =>
+            {
+                var accessor = o.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                return new UriService(uri);
+            });
             services.AddScoped<EfCoreProductRepository>();
         }
 

@@ -2,6 +2,8 @@
 using StockManagement.Entity;
 using StockManagement.Entity.Repository;
 using StockManagement.Filter;
+using StockManagement.Services;
+using StockManagement.Utils;
 using StockManagement.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -17,10 +19,12 @@ namespace StockManagement.Controllers
         where TRepository : IRepository<TEntity>
     {
         private readonly TRepository repository;
+        private readonly IUriService uriService;
 
-        public BaseController(TRepository repository)
+        public BaseController(TRepository repository,IUriService uriService)
         {
             this.repository = repository;
+            this.uriService = uriService;
         }
 
 
@@ -30,11 +34,11 @@ namespace StockManagement.Controllers
             return await repository.GetAll();
         }
 
-        // GET: api/[controller]
         [HttpGet]
         [Route("/lista/productos")]
         public async Task<ActionResult<IEnumerable<TEntity>>> Get([FromQuery] PaginationFilter filter)
         {
+                var route = Request.Path.Value;
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var query = await repository.GetAll();
             var pagedData = query
@@ -42,7 +46,8 @@ namespace StockManagement.Controllers
                .Take(validFilter.PageSize);
             var totalCount = query.Count;
 
-            return Ok(new PagedResponse<IEnumerable<TEntity>>(pagedData, validFilter.PageNumber, validFilter.PageSize));
+            var pagedReponse = PaginationHelper.CreatePagedReponse<TEntity>(pagedData, validFilter, totalCount, uriService, route);
+            return Ok(pagedReponse);
         }
 
         // GET: api/[controller]/5

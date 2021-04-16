@@ -6,7 +6,8 @@ using StockManagement.Data;
 using StockManagement.Entity;
 using StockManagement.Entity.Repository;
 using System.Threading.Tasks;
-
+using StockManagement.Filter;
+using StockManagement.Services;
 
 namespace StockManagement.Controllers
 {
@@ -16,8 +17,9 @@ namespace StockManagement.Controllers
     public class ProductsController : BaseController<Product, EfCoreProductRepository>
     {
         private readonly StockManagementContext _context;
+        private readonly IUriService uriService;
 
-        public ProductsController(EfCoreProductRepository repository) : base (repository)
+        public ProductsController(EfCoreProductRepository repository,IUriService uriService) : base (repository,uriService)
         {
         }
 
@@ -34,6 +36,8 @@ namespace StockManagement.Controllers
             }
             return new ActionResult<IEnumerable<Product>>(filteredProd);
         }
+
+  
 
     }
 }
