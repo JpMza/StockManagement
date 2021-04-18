@@ -5,6 +5,7 @@ export interface ProductState {
     isLoading: boolean;
     startDateIndex?: number;
     products: Product[];
+    pagination: Pagination
 }
 
 export interface Product {
@@ -14,16 +15,25 @@ export interface Product {
     category: number;
 }
 
+interface Pagination {
+    firstPage: string,
+    lastPage: string,
+    previousPage: string,
+    nextPage: string,
+    pageNumber?: number,
+    pageSize?: number,
+}
+
 interface Response {
     pageNumber: number,
     pageSize: number,
-    firstPage: any,
-    lastPage: any,
+    firstPage: string,
+    lastPage: string,
+    previousPage: string,
+    nextPage: string,
     totalPages: number,
     totalRecords: number,
-    nextPage: any,
-    previousPage: any,
-    data : Product[]
+    data: Product[]
 }
 
 interface RequestProductsListAction {
@@ -53,12 +63,23 @@ export const actionCreators = {
 
             dispatch({ type: 'REQUEST_PRODUCTS_LIST', startDateIndex: startDateIndex });
         }
+    },
+    goToPage: (startDateIndex: number, page : string) : AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (appState && appState.products && startDateIndex !== appState.products.startDateIndex) {
+            fetch(page)
+                .then(response => response.json() as Promise<Response>)
+                .then(result => dispatch({ type: 'RECIVE_PRODUCTS', startDateIndex: startDateIndex, data: result })
+                );
+
+            dispatch({ type: 'REQUEST_PRODUCTS_LIST', startDateIndex: startDateIndex });
+        }
     }
 }
 
 //reducer
 
-const unloadedState: ProductState = { products: [], isLoading: false };
+const unloadedState: ProductState = { products: [], isLoading: false, pagination: {firstPage: "", lastPage:"", previousPage: "",nextPage: ""} };
 
 
 export const reducer: Reducer<ProductState> = (state: ProductState | undefined, incomingAction: Action): ProductState => {
@@ -72,16 +93,23 @@ export const reducer: Reducer<ProductState> = (state: ProductState | undefined, 
             return {
                 startDateIndex: action.startDateIndex,
                 products: state.products,
-                isLoading: true
+                isLoading: true,
+                pagination: {firstPage: "", lastPage:"", previousPage: "",nextPage: ""} 
             };
         case 'RECIVE_PRODUCTS':
             // Only accept the incoming data if it matches the most recent request. This ensures we correctly
             // handle out-of-order responses.
             if (action.startDateIndex === state.startDateIndex) {
-                debugger
+                console.log(action)
                 return {
                     products: action.data.data,
-                    isLoading: false
+                    isLoading: false,
+                    pagination: {
+                        firstPage : action.data.firstPage,
+                        lastPage: action.data.lastPage,
+                        nextPage: action.data.nextPage,
+                        previousPage: action.data.previousPage
+                    }
                 };
             }
             break;

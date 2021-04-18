@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
-import { Row, Col } from 'reactstrap';
+import { Row, Col,Button } from 'reactstrap';
 import { ApplicationState } from '../../store';
 import * as ProductsStore from '../../store/Products';
 import './Product.css';
@@ -31,7 +30,7 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
             <React.Fragment>
                 <Row>
                     <Col xs="10" sm="8" md="8" lg="9" xl="9">
-                        <h1 id="tabelLabel">Lista de Productos</h1>
+                        <h1 id="tabelLabel">Lista de Produfgvctos</h1>
                         <p>Aqui puede observar el listado de los productos disponibles</p>
                     </Col>
                     <Col xs="2" sm="4" md="4" lg="3" xl="3">
@@ -44,8 +43,12 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
         );
     }
 
+    private getStartDateIndex() {
+        return parseInt(this.props.match.params.startDateIndex, 10) || 0
+    }
+
     private ensureDataFetched() {
-        const startDateIndex = parseInt(this.props.match.params.startDateIndex, 10) || 0;
+        const startDateIndex = this.getStartDateIndex();
         this.props.requestProducts(startDateIndex);
     }
 
@@ -75,14 +78,13 @@ class ProductsTable extends React.PureComponent<ProductsProps> {
     }
 
     private renderPagination() {
-        const prevStartDateIndex = 1;
-        const nextStartDateIndex = 1;
-
         return (
             <div className="d-flex justify-content-between">
-                <Link className='btn btn-outline-secondary btn-sm' to={`/lista/productos?page=${prevStartDateIndex - 1}&size=${10}`}>Previous</Link>
-                {this.props.isLoading && <span>Loading...</span>}
-                <Link className='btn btn-outline-secondary btn-sm' to={`/lista/productos?page=${nextStartDateIndex + 1 }&size=${10}`}>Next</Link>
+                <Button color="primary" disabled={!this.props.pagination.firstPage} onClick={() => this.props.goToPage(this.getStartDateIndex(), this.props.pagination.firstPage)}>{`<< Primera`}</Button>
+                <Button color="secondary" disabled={!this.props.pagination.previousPage} onClick={() => this.props.goToPage(this.getStartDateIndex(), this.props.pagination.previousPage)}>{`< Anterior`}</Button>
+                {this.props.isLoading && <span>Cargando...</span>}
+                <Button color="secondary" disabled={!this.props.pagination.nextPage} onClick={() => this.props.goToPage(this.getStartDateIndex(), this.props.pagination.nextPage)}>{`Siguiente >`}</Button>
+                <Button color="primary" disabled={!this.props.pagination.lastPage} onClick={() => this.props.goToPage(this.getStartDateIndex(), this.props.pagination.lastPage)}>{`Última >>`}</Button>
             </div>
         );
     }
